@@ -396,6 +396,71 @@
             opacity: 0.7;
         }
 
+        /* ---- Info Rows (agendamento, mobilia) ---- */
+        .card__info-rows {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .card__info-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.82rem;
+            color: var(--text-secondary);
+            padding: 8px 12px;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--glass-border);
+        }
+
+        .card__info-row svg {
+            width: 16px;
+            height: 16px;
+            flex-shrink: 0;
+            opacity: 0.7;
+        }
+
+        .info-badge {
+            margin-left: auto;
+            padding: 2px 10px;
+            border-radius: 100px;
+            font-size: 0.72rem;
+            font-weight: 600;
+        }
+
+        .info-badge--scheduled {
+            background: rgba(124, 92, 252, 0.12);
+            border: 1px solid rgba(124, 92, 252, 0.25);
+            color: var(--accent);
+        }
+
+        .info-badge--not-scheduled {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--glass-border);
+            color: var(--text-muted);
+        }
+
+        .info-badge--sem {
+            background: rgba(248, 113, 113, 0.1);
+            border: 1px solid rgba(248, 113, 113, 0.2);
+            color: var(--red);
+        }
+
+        .info-badge--semi {
+            background: rgba(245, 197, 66, 0.1);
+            border: 1px solid rgba(245, 197, 66, 0.2);
+            color: var(--gold);
+        }
+
+        .info-badge--mobiliado {
+            background: rgba(52, 211, 153, 0.1);
+            border: 1px solid rgba(52, 211, 153, 0.2);
+            color: var(--green);
+        }
+
         /* ---- Contact ---- */
         .card__contact {
             display: flex;
@@ -754,6 +819,8 @@
                 quartos: 2,
                 banheiros: 2,
                 garagem: true,
+                agendamento: null,
+                mobilia: "sem",
                 status: "available",
                 facebookUrl: "https://www.facebook.com/marketplace/item/1965257111057856/",
                 fotos: [
@@ -777,6 +844,8 @@
                 quartos: 2,
                 banheiros: 2,
                 garagem: true,
+                agendamento: null,
+                mobilia: "sem",
                 status: "available",
                 facebookUrl: "https://www.facebook.com/marketplace/item/941324115060194/",
                 fotos: [
@@ -793,6 +862,8 @@
                 quartos: 3,
                 banheiros: 2,
                 garagem: false,
+                agendamento: null,
+                mobilia: "sem",
                 status: "available",
                 facebookUrl: "https://www.facebook.com/marketplace/item/2056715964911449/",
                 fotos: [
@@ -829,6 +900,8 @@
                 quartos: 2,
                 banheiros: 1,
                 garagem: false,
+                agendamento: null,
+                mobilia: "sem",
                 status: "discarded",
                 facebookUrl: "#",
                 fotos: []
@@ -845,7 +918,9 @@
             phone: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>`,
             whatsapp: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.15-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.11.546 4.093 1.503 5.818L0 24l6.335-1.462A11.935 11.935 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.82a9.795 9.795 0 0 1-5.09-1.42l-.365-.217-3.782.992 1.01-3.685-.237-.377A9.796 9.796 0 0 1 2.18 12C2.18 6.584 6.584 2.18 12 2.18S21.82 6.584 21.82 12 17.416 21.82 12 21.82z"/></svg>`,
             facebook: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>`,
-            images: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>`
+            images: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>`,
+            calendar: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>`,
+            sofa: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 9V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v3"/><path d="M2 11v5a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-5a2 2 0 0 0-4 0v2H6v-2a2 2 0 0 0-4 0z"/><path d="M4 18v2"/><path d="M20 18v2"/></svg>`
         };
 
         // ====== FORMAT PRICE ======
@@ -889,6 +964,23 @@
                             <span class="feature">${icons.bed} ${casa.quartos} quarto${casa.quartos > 1 ? 's' : ''}</span>
                             <span class="feature">${icons.bath} ${casa.banheiros} banheiro${casa.banheiros > 1 ? 's' : ''}</span>
                             ${casa.garagem ? `<span class="feature">${icons.car} Garagem</span>` : ''}
+                        </div>
+                        <div class="card__info-rows">
+                            <div class="card__info-row">
+                                ${icons.calendar}
+                                <span>Visita agendada</span>
+                                ${casa.agendamento
+                    ? `<span class="info-badge info-badge--scheduled">📅 ${casa.agendamento}</span>`
+                    : `<span class="info-badge info-badge--not-scheduled">Não agendado</span>`
+                }
+                            </div>
+                            <div class="card__info-row">
+                                ${icons.sofa}
+                                <span>Mobília</span>
+                                <span class="info-badge info-badge--${casa.mobilia === 'mobiliado' ? 'mobiliado' : casa.mobilia === 'semi' ? 'semi' : 'sem'}">
+                                    ${casa.mobilia === 'mobiliado' ? 'Mobiliado' : casa.mobilia === 'semi' ? 'Semi-mobiliado' : 'Sem mobília'}
+                                </span>
+                            </div>
                         </div>
                         <div class="card__contact">
                             ${icons.phone}
