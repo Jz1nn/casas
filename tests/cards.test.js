@@ -185,4 +185,19 @@ describe('renderCard', () => {
         expect(html).toContain('2 fotos');
         expect(html).toContain('foto1.jpg');
     });
+
+    // ====== Management Buttons Tests ======
+    it('exibe botão Editar', () => {
+        const html = renderCard(mockCasa);
+        expect(html).toContain('Editar');
+        expect(html).toContain('btn-manage--edit');
+        expect(html).toContain('editCasa(99)');
+    });
+
+    it('exibe botão Excluir', () => {
+        const html = renderCard(mockCasa);
+        expect(html).toContain('Excluir');
+        expect(html).toContain('btn-manage--delete');
+        expect(html).toContain('deleteCasa(99)');
+    });
 });

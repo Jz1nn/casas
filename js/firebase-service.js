@@ -48,15 +48,48 @@ export async function loadCasasFromFirebase() {
 /**
  * Saves a new house to Firestore.
  * @param {object} casa - House object to save
- * @returns {Promise<boolean>} True if saved successfully
+ * @returns {Promise<string|false>} Document ID if saved, false on error
  */
 export async function saveCasaToFirebase(casa) {
     if (!db) return false;
     try {
-        await db.collection('casas').add(casa);
-        return true;
+        const docRef = await db.collection('casas').add(casa);
+        return docRef.id;
     } catch (err) {
         console.error('Erro ao salvar no Firebase:', err);
+        return false;
+    }
+}
+
+/**
+ * Updates an existing house document in Firestore.
+ * @param {string} firebaseId - Firestore document ID
+ * @param {object} data - Updated house data
+ * @returns {Promise<boolean>} True if updated successfully
+ */
+export async function updateCasaInFirebase(firebaseId, data) {
+    if (!db) return false;
+    try {
+        await db.collection('casas').doc(firebaseId).update(data);
+        return true;
+    } catch (err) {
+        console.error('Erro ao atualizar no Firebase:', err);
+        return false;
+    }
+}
+
+/**
+ * Deletes a house document from Firestore.
+ * @param {string} firebaseId - Firestore document ID
+ * @returns {Promise<boolean>} True if deleted successfully
+ */
+export async function deleteCasaFromFirebase(firebaseId) {
+    if (!db) return false;
+    try {
+        await db.collection('casas').doc(firebaseId).delete();
+        return true;
+    } catch (err) {
+        console.error('Erro ao excluir do Firebase:', err);
         return false;
     }
 }

@@ -62,6 +62,10 @@ export function renderCard(casa) {
                     <a class="btn btn--whatsapp" href="${whatsappLink(casa.telefone, casa.nome)}" target="_blank" rel="noopener">${icons.whatsapp} WhatsApp</a>
                     ${casa.facebookUrl !== '#' ? `<a class="btn btn--facebook" href="${casa.facebookUrl}" target="_blank" rel="noopener">${icons.facebook} Anúncio</a>` : ''}
                 </div>
+                <div class="card__management">
+                    <button class="btn-manage btn-manage--edit" onclick="editCasa(${casa.id})" title="Editar">✏️ Editar</button>
+                    <button class="btn-manage btn-manage--delete" onclick="deleteCasa(${casa.id})" title="Excluir">🗑️ Excluir</button>
+                </div>
             </div>
         </article>
     `;

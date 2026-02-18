@@ -553,6 +553,45 @@ body::before {
     transform: translateY(-1px);
 }
 
+/* ---- Management (Edit/Delete) ---- */
+.card__management {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid var(--glass-border);
+}
+
+.btn-manage {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 7px 14px;
+    border-radius: var(--radius-sm);
+    font-family: inherit;
+    font-size: 0.75rem;
+    font-weight: 500;
+    border: 1px solid var(--glass-border);
+    cursor: pointer;
+    transition: var(--transition);
+    flex: 1;
+    background: transparent;
+    color: var(--text-muted);
+}
+
+.btn-manage--edit:hover {
+    background: rgba(245, 197, 66, 0.1);
+    border-color: rgba(245, 197, 66, 0.3);
+    color: var(--gold);
+}
+
+.btn-manage--delete:hover {
+    background: rgba(248, 113, 113, 0.1);
+    border-color: rgba(248, 113, 113, 0.3);
+    color: var(--red);
+}
+
 /* ====== MODAL / LIGHTBOX ====== */
 .modal-overlay {
     position: fixed;

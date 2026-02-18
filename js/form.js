@@ -2,15 +2,17 @@
 import { compressImage } from './image-utils.js';
 
 // Store compressed photos for the current form session
-let pendingPhotos = []; // Array of base64 strings
+let pendingPhotos = []; // Array of base64 strings or local paths
+let editingCasa = null; // null = create mode, object = edit mode
 
 /**
- * Builds a new house object from the form fields.
- * @returns {object} New house object (includes compressed photos)
+ * Builds a house object from the form fields.
+ * In edit mode, preserves the original id and firebaseId.
+ * @returns {object} House object
  */
 export function buildCasaFromForm() {
-    return {
-        id: Date.now(),
+    const casa = {
+        id: editingCasa ? editingCasa.id : Date.now(),
         nome: document.getElementById('fNome').value,
         contato: document.getElementById('fContato').value,
         telefone: document.getElementById('fTelefone').value,
@@ -25,8 +27,16 @@ export function buildCasaFromForm() {
         facebookUrl: document.getElementById('fFacebook').value || '#',
         adicionadoPor: document.getElementById('fAdicionadoPor').value,
         fotos: [...pendingPhotos],
-        criadoEm: new Date().toISOString()
+        criadoEm: editingCasa ? (editingCasa.criadoEm || new Date().toISOString()) : new Date().toISOString()
     };
+
+    // Preserve firebaseId and overrideId in edit mode
+    if (editingCasa) {
+        if (editingCasa.firebaseId) casa.firebaseId = editingCasa.firebaseId;
+        if (editingCasa.overrideId) casa.overrideId = editingCasa.overrideId;
+    }
+
+    return casa;
 }
 
 /**
@@ -44,18 +54,55 @@ function renderPhotoPreview() {
 
     counter.textContent = `${pendingPhotos.length} foto${pendingPhotos.length > 1 ? 's' : ''} selecionada${pendingPhotos.length > 1 ? 's' : ''}`;
 
-    preview.innerHTML = pendingPhotos.map((base64, idx) => `
+    preview.innerHTML = pendingPhotos.map((src, idx) => `
         <div class="photo-preview-item">
-            <img src="${base64}" alt="Foto ${idx + 1}" />
+            <img src="${src}" alt="Foto ${idx + 1}" />
             <button type="button" class="photo-preview-remove" data-idx="${idx}" title="Remover">×</button>
         </div>
     `).join('');
 }
 
 /**
- * Opens the form modal.
+ * Opens the form modal in create mode.
  */
 export function openForm() {
+    editingCasa = null;
+    document.getElementById('formModalTitle').textContent = '🏠 Cadastrar Novo Imóvel';
+    document.getElementById('formSubmitBtn').textContent = '✅ Cadastrar Imóvel';
+    document.getElementById('formOverlay').classList.add('open');
+    document.body.style.overflow = 'hidden';
+}
+
+/**
+ * Opens the form modal in edit mode, pre-filled with casa data.
+ * @param {object} casa - House object to edit
+ */
+export function openFormForEdit(casa) {
+    editingCasa = casa;
+
+    // Pre-fill form fields
+    document.getElementById('fNome').value = casa.nome;
+    document.getElementById('fContato').value = casa.contato;
+    document.getElementById('fTelefone').value = casa.telefone;
+    document.getElementById('fPreco').value = casa.preco;
+    document.getElementById('fLocalizacao').value = casa.localizacao;
+    document.getElementById('fQuartos').value = casa.quartos;
+    document.getElementById('fBanheiros').value = casa.banheiros;
+    document.getElementById('fGaragem').value = String(casa.garagem);
+    document.getElementById('fMobilia').value = casa.mobilia;
+    document.getElementById('fStatus').value = casa.status;
+    document.getElementById('fAgendamento').value = casa.agendamento || '';
+    document.getElementById('fFacebook').value = casa.facebookUrl === '#' ? '' : casa.facebookUrl;
+    document.getElementById('fAdicionadoPor').value = casa.adicionadoPor || '';
+
+    // Load existing photos into pending photos
+    pendingPhotos = [...(casa.fotos || [])];
+    renderPhotoPreview();
+
+    // Update modal title and submit button
+    document.getElementById('formModalTitle').textContent = '✏️ Editar Imóvel';
+    document.getElementById('formSubmitBtn').textContent = '💾 Salvar Alterações';
+
     document.getElementById('formOverlay').classList.add('open');
     document.body.style.overflow = 'hidden';
 }
@@ -66,13 +113,22 @@ export function openForm() {
 export function closeForm() {
     document.getElementById('formOverlay').classList.remove('open');
     document.body.style.overflow = '';
+    editingCasa = null;
     pendingPhotos = [];
+    document.getElementById('houseForm').reset();
     renderPhotoPreview();
 }
 
 /**
+ * Returns the current editing casa (or null if in create mode).
+ */
+export function getEditingCasa() {
+    return editingCasa;
+}
+
+/**
  * Sets up all form event listeners.
- * @param {Function} onSubmit - Callback when form is submitted with new casa object
+ * @param {Function} onSubmit - Callback: (casa, isEdit) => Promise
  */
 export function initFormListeners(onSubmit) {
     document.getElementById('btnAddHouse').addEventListener('click', openForm);
@@ -103,7 +159,7 @@ export function initFormListeners(onSubmit) {
         }
 
         status.textContent = '';
-        fileInput.value = ''; // Reset input so same files can be added again
+        fileInput.value = '';
         renderPhotoPreview();
     });
 
@@ -152,23 +208,25 @@ export function initFormListeners(onSubmit) {
     // Form submit
     document.getElementById('houseForm').addEventListener('submit', async (e) => {
         e.preventDefault();
-        const submitBtn = e.target.querySelector('.form-submit');
+        const submitBtn = document.getElementById('formSubmitBtn');
+        const originalText = submitBtn.textContent;
         submitBtn.textContent = '⏳ Salvando...';
         submitBtn.disabled = true;
 
         try {
-            const novaCasa = buildCasaFromForm();
-            await onSubmit(novaCasa);
+            const casa = buildCasaFromForm();
+            const isEdit = editingCasa !== null;
+            await onSubmit(casa, isEdit);
             closeForm();
-            document.getElementById('houseForm').reset();
-            pendingPhotos = [];
-            renderPhotoPreview();
-            alert('Imóvel cadastrado com sucesso! ✅\nTodos que acessarem o site verão este imóvel.');
+            alert(isEdit
+                ? 'Imóvel atualizado com sucesso! ✅'
+                : 'Imóvel cadastrado com sucesso! ✅\nTodos que acessarem o site verão este imóvel.'
+            );
         } catch (err) {
             console.error('Erro ao salvar:', err);
             alert('Erro ao salvar o imóvel. Tente novamente.');
         } finally {
-            submitBtn.textContent = '✅ Cadastrar Imóvel';
+            submitBtn.textContent = originalText;
             submitBtn.disabled = false;
         }
     });
