@@ -4,9 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Catálogo de Casas para Aluguel</title>
-    <meta name="description"
-        content="Catálogo de casas disponíveis para aluguel — avalie e compare as melhores opções.">
+    <title>Análise de Imóveis</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
@@ -322,9 +320,9 @@
         }
 
         .card__status-badge--discarded {
-            background: rgba(248, 113, 113, 0.15);
-            border: 1px solid rgba(248, 113, 113, 0.3);
-            color: var(--red);
+            background: #dc2626;
+            border: 1px solid #f87171;
+            color: #fff;
         }
 
         .card__photo-count {
@@ -769,8 +767,8 @@
     <!-- HEADER -->
     <header class="header">
         <span class="header__icon">🏠</span>
-        <h1>Catálogo de Casas</h1>
-        <p>Casas em avaliação para aluguel — compare e escolha a melhor opção</p>
+        <h1>Análise de Imóveis</h1>
+        <p>Imóveis em avaliação — John e Maria</p>
     </header>
 
     <!-- FILTERS -->
@@ -811,7 +809,7 @@
         const casas = [
             {
                 id: 1,
-                nome: "Casa Márcia",
+                nome: "Rua Allan Kardec — Jardim Italamar",
                 contato: "Marcia",
                 telefone: "73 99810-1161",
                 preco: 1500,
@@ -836,16 +834,16 @@
             },
             {
                 id: 2,
-                nome: "Casa Rua Aurora (Descartada)",
+                nome: "Rua Aurora — Goes Calmon",
                 contato: "Sara",
                 telefone: "(11) 97314-8901",
                 preco: 1500,
-                localizacao: "Rua Aurora — Goes Calmon",
+                localizacao: "Rua Aurora - Goes Calmon",
                 quartos: 2,
                 banheiros: 2,
                 garagem: true,
                 agendamento: "18 / 02 / 2025 - A partir das 17h",
-                mobilia: "semi",
+                mobilia: "sem",
                 status: "discarded",
                 facebookUrl: "https://www.facebook.com/marketplace/item/941324115060194/",
                 fotos: [
@@ -854,11 +852,11 @@
             },
             {
                 id: 3,
-                nome: "Casa Vernon",
-                contato: "Proprietário",
+                nome: "Rua Aroeira — Santo Antônio",
+                contato: "Vernon Falcão",
                 telefone: "73 9151-6848",
                 preco: 1500,
-                localizacao: "Rua Aroeira",
+                localizacao: "Rua Aroeira - 165, Santo Antônio, Próx. Cond. Colina Park",
                 quartos: 3,
                 banheiros: 2,
                 garagem: false,
@@ -1014,6 +1012,10 @@
             const filtered = casas.filter(c => {
                 if (currentFilter === 'all') return true;
                 return c.status === currentFilter;
+            }).sort((a, b) => {
+                if (a.status === 'available' && b.status === 'discarded') return -1;
+                if (a.status === 'discarded' && b.status === 'available') return 1;
+                return 0;
             });
 
             if (filtered.length === 0) {
