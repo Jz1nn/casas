@@ -1,0 +1,13 @@
+{
+    "name": "casas",
+    "version": "1.0.0",
+    "description": "Análise de Imóveis - Catálogo de casas para alugar",
+    "type": "module",
+    "scripts": {
+        "test": "vitest run",
+        "test:watch": "vitest"
+    },
+    "devDependencies": {
+        "vitest": "^3.0.0"
+    }
+}
