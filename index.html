@@ -11,6 +11,9 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
         rel="stylesheet">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
     <style>
         /* ====== RESET & BASE ====== */
         *,
@@ -1079,8 +1082,19 @@
     </footer>
 
     <script>
+        // ====== FIREBASE INIT ======
+        const firebaseConfig = {
+            apiKey: "AIzaSyAAGhCHRumL5zj9HCfaJQmlq9JnznqvjGM",
+            authDomain: "busca-de-casas-para-alugar.firebaseapp.com",
+            projectId: "busca-de-casas-para-alugar",
+            storageBucket: "busca-de-casas-para-alugar.firebasestorage.app",
+            messagingSenderId: "445659706302",
+            appId: "1:445659706302:web:ccaa2c8f35e995c2e97fef"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
         // ====== DATA ======
-        const savedCasas = JSON.parse(localStorage.getItem('casas_extras') || '[]');
         const casas = [
             {
                 id: 1,
@@ -1189,7 +1203,7 @@
                     "Condominio Eco America - 1400/571193804_1512231596639655_5800142737764555730_n.jpg"
                 ]
             }
-        ].concat(savedCasas);
+        ];
 
         // ====== SVG ICONS ======
         const icons = {
@@ -1419,8 +1433,12 @@
             }
         });
 
-        document.getElementById('houseForm').addEventListener('submit', (e) => {
+        document.getElementById('houseForm').addEventListener('submit', async (e) => {
             e.preventDefault();
+            const submitBtn = e.target.querySelector('.form-submit');
+            submitBtn.textContent = '⏳ Salvando...';
+            submitBtn.disabled = true;
+
             const novaCasa = {
                 id: Date.now(),
                 nome: document.getElementById('fNome').value,
@@ -1436,28 +1454,49 @@
                 status: document.getElementById('fStatus').value,
                 facebookUrl: document.getElementById('fFacebook').value || '#',
                 adicionadoPor: document.getElementById('fAdicionadoPor').value,
-                fotos: []
+                fotos: [],
+                criadoEm: new Date().toISOString()
             };
 
-            // Save to localStorage
-            const extras = JSON.parse(localStorage.getItem('casas_extras') || '[]');
-            extras.push(novaCasa);
-            localStorage.setItem('casas_extras', JSON.stringify(extras));
+            try {
+                // Save to Firebase Firestore
+                await db.collection('casas').add(novaCasa);
 
-            // Add to current list and re-render
-            casas.push(novaCasa);
-            render();
+                // Add to current list and re-render
+                casas.push(novaCasa);
+                render();
 
-            // Close form and reset
-            document.getElementById('formOverlay').classList.remove('open');
-            document.body.style.overflow = '';
-            document.getElementById('houseForm').reset();
+                // Close form and reset
+                document.getElementById('formOverlay').classList.remove('open');
+                document.body.style.overflow = '';
+                document.getElementById('houseForm').reset();
 
-            alert('Imóvel cadastrado com sucesso! ✅');
+                alert('Imóvel cadastrado com sucesso! ✅\nTodos que acessarem o site verão este imóvel.');
+            } catch (err) {
+                console.error('Erro ao salvar:', err);
+                alert('Erro ao salvar o imóvel. Tente novamente.');
+            } finally {
+                submitBtn.textContent = '✅ Cadastrar Imóvel';
+                submitBtn.disabled = false;
+            }
         });
 
-        // ====== INIT ======
-        render();
+        // ====== INIT: LOAD FROM FIREBASE ======
+        async function init() {
+            render(); // render hardcoded houses first
+            try {
+                const snapshot = await db.collection('casas').orderBy('criadoEm', 'asc').get();
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    data.firebaseId = doc.id;
+                    casas.push(data);
+                });
+                render(); // re-render with firebase houses
+            } catch (err) {
+                console.error('Erro ao carregar do Firebase:', err);
+            }
+        }
+        init();
     </script>
 </body>
 
