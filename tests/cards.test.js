@@ -170,4 +170,19 @@ describe('renderCard', () => {
         const html = renderCard(mockCasa);
         expect(html).toContain('data-id="99"');
     });
+
+    // ====== Base64 Photo Tests ======
+    it('renderiza card com fotos base64', () => {
+        const casa = { ...mockCasa, fotos: ['data:image/jpeg;base64,/9j/4AAQ...'] };
+        const html = renderCard(casa);
+        expect(html).toContain('data:image/jpeg;base64');
+        expect(html).toContain('1 foto');
+    });
+
+    it('renderiza card com mix de fotos locais e base64', () => {
+        const casa = { ...mockCasa, fotos: ['foto1.jpg', 'data:image/jpeg;base64,abc123'] };
+        const html = renderCard(casa);
+        expect(html).toContain('2 fotos');
+        expect(html).toContain('foto1.jpg');
+    });
 });

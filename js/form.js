@@ -1,8 +1,12 @@
 // ====== Form Module ======
+import { compressImage } from './image-utils.js';
+
+// Store compressed photos for the current form session
+let pendingPhotos = []; // Array of base64 strings
 
 /**
  * Builds a new house object from the form fields.
- * @returns {object} New house object
+ * @returns {object} New house object (includes compressed photos)
  */
 export function buildCasaFromForm() {
     return {
@@ -20,9 +24,32 @@ export function buildCasaFromForm() {
         status: document.getElementById('fStatus').value,
         facebookUrl: document.getElementById('fFacebook').value || '#',
         adicionadoPor: document.getElementById('fAdicionadoPor').value,
-        fotos: [],
+        fotos: [...pendingPhotos],
         criadoEm: new Date().toISOString()
     };
+}
+
+/**
+ * Renders the photo preview grid.
+ */
+function renderPhotoPreview() {
+    const preview = document.getElementById('photoPreview');
+    const counter = document.getElementById('photoCounter');
+
+    if (pendingPhotos.length === 0) {
+        preview.innerHTML = '';
+        counter.textContent = '';
+        return;
+    }
+
+    counter.textContent = `${pendingPhotos.length} foto${pendingPhotos.length > 1 ? 's' : ''} selecionada${pendingPhotos.length > 1 ? 's' : ''}`;
+
+    preview.innerHTML = pendingPhotos.map((base64, idx) => `
+        <div class="photo-preview-item">
+            <img src="${base64}" alt="Foto ${idx + 1}" />
+            <button type="button" class="photo-preview-remove" data-idx="${idx}" title="Remover">×</button>
+        </div>
+    `).join('');
 }
 
 /**
@@ -34,11 +61,13 @@ export function openForm() {
 }
 
 /**
- * Closes the form modal and resets the form.
+ * Closes the form modal, resets the form and pending photos.
  */
 export function closeForm() {
     document.getElementById('formOverlay').classList.remove('open');
     document.body.style.overflow = '';
+    pendingPhotos = [];
+    renderPhotoPreview();
 }
 
 /**
@@ -47,13 +76,80 @@ export function closeForm() {
  */
 export function initFormListeners(onSubmit) {
     document.getElementById('btnAddHouse').addEventListener('click', openForm);
-
     document.getElementById('formClose').addEventListener('click', closeForm);
 
     document.getElementById('formOverlay').addEventListener('click', (e) => {
         if (e.target === e.currentTarget) closeForm();
     });
 
+    // Photo file input
+    const fileInput = document.getElementById('fFotos');
+    const uploadArea = document.getElementById('uploadArea');
+
+    fileInput.addEventListener('change', async (e) => {
+        const files = e.target.files;
+        if (!files.length) return;
+
+        const status = document.getElementById('uploadStatus');
+        status.textContent = '⏳ Comprimindo fotos...';
+
+        for (const file of files) {
+            try {
+                const base64 = await compressImage(file);
+                pendingPhotos.push(base64);
+            } catch (err) {
+                console.error('Erro ao comprimir:', err);
+            }
+        }
+
+        status.textContent = '';
+        fileInput.value = ''; // Reset input so same files can be added again
+        renderPhotoPreview();
+    });
+
+    // Drag & drop
+    uploadArea.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        uploadArea.classList.add('dragover');
+    });
+
+    uploadArea.addEventListener('dragleave', () => {
+        uploadArea.classList.remove('dragover');
+    });
+
+    uploadArea.addEventListener('drop', async (e) => {
+        e.preventDefault();
+        uploadArea.classList.remove('dragover');
+        const files = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/'));
+        if (!files.length) return;
+
+        const status = document.getElementById('uploadStatus');
+        status.textContent = '⏳ Comprimindo fotos...';
+
+        for (const file of files) {
+            try {
+                const base64 = await compressImage(file);
+                pendingPhotos.push(base64);
+            } catch (err) {
+                console.error('Erro ao comprimir:', err);
+            }
+        }
+
+        status.textContent = '';
+        renderPhotoPreview();
+    });
+
+    // Remove photo from preview
+    document.getElementById('photoPreview').addEventListener('click', (e) => {
+        const btn = e.target.closest('.photo-preview-remove');
+        if (btn) {
+            const idx = Number(btn.dataset.idx);
+            pendingPhotos.splice(idx, 1);
+            renderPhotoPreview();
+        }
+    });
+
+    // Form submit
     document.getElementById('houseForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         const submitBtn = e.target.querySelector('.form-submit');
@@ -65,6 +161,8 @@ export function initFormListeners(onSubmit) {
             await onSubmit(novaCasa);
             closeForm();
             document.getElementById('houseForm').reset();
+            pendingPhotos = [];
+            renderPhotoPreview();
             alert('Imóvel cadastrado com sucesso! ✅\nTodos que acessarem o site verão este imóvel.');
         } catch (err) {
             console.error('Erro ao salvar:', err);
