@@ -1,18 +1,16 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Regras para a coleção 'casas'
     match /casas/{casaId} {
-      // Permite leitura pública (mude se quiser autenticação)
+      // Leitura pública
       allow read: if true;
-      
-      // Permite escrita apenas se os dados forem válidos
-      // Recomendado: Adicionar autenticação 'allow write: if request.auth != null;'
-      allow create, update: if request.resource.data.titulo is string
+
+      // Permite criar e atualizar se os campos obrigatórios existirem e forem válidos
+      allow create, update: if request.resource.data.nome is string
                          && request.resource.data.preco is number;
-                         
-      // Restringe exclusão (exemplo: apenas admin ou dono)
-      allow delete: if false; // Mude conforme necessário
+
+      // Permite exclusão (para poder remover imóveis pelo app)
+      allow delete: if true;
     }
   }
 }
