@@ -97,8 +97,14 @@ export function openFormForEdit(casa) {
     document.getElementById('fFacebook').value = casa.facebookUrl === '#' ? '' : casa.facebookUrl;
     document.getElementById('fAdicionadoPor').value = casa.adicionadoPor || '';
 
-    // Load existing photos into pending photos
-    pendingPhotos = [...(casa.fotos || [])];
+    // Load existing photos into pending photos (enforce MAX_PHOTOS limit)
+    const existingPhotos = casa.fotos || [];
+    if (existingPhotos.length > MAX_PHOTOS) {
+        alert(`Este imóvel tinha ${existingPhotos.length} fotos. Apenas as primeiras ${MAX_PHOTOS} foram mantidas para respeitar o limite do banco de dados.`);
+        pendingPhotos = existingPhotos.slice(0, MAX_PHOTOS);
+    } else {
+        pendingPhotos = [...existingPhotos];
+    }
     renderPhotoPreview();
 
     // Update modal title and submit button
@@ -240,6 +246,12 @@ export function initFormListeners(onSubmit) {
 
         try {
             const casa = buildCasaFromForm();
+
+            // Final safety check on photo count
+            if (casa.fotos.length > MAX_PHOTOS) {
+                throw new Error(`Máximo de ${MAX_PHOTOS} fotos permitido. Remova algumas antes de salvar.`);
+            }
+
             const isEdit = editingCasa !== null;
             await onSubmit(casa, isEdit);
             closeForm();
