@@ -8,7 +8,7 @@
  * @param {number} quality - JPEG quality 0-1 (default: 0.65)
  * @returns {Promise<string>} Base64 data URL (data:image/jpeg;base64,...)
  */
-export function compressImage(file, maxWidth = 800, quality = 0.65) {
+export function compressImage(file, maxWidth = 600, quality = 0.5) {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.onload = (e) => {

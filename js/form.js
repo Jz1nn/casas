@@ -1,6 +1,8 @@
 // ====== Form Module ======
 import { compressImage } from './image-utils.js';
 
+const MAX_PHOTOS = 8; // Firestore 1MB document limit
+
 // Store compressed photos for the current form session
 let pendingPhotos = []; // Array of base64 strings or local paths
 let editingCasa = null; // null = create mode, object = edit mode
@@ -143,13 +145,25 @@ export function initFormListeners(onSubmit) {
     const uploadArea = document.getElementById('uploadArea');
 
     fileInput.addEventListener('change', async (e) => {
-        const files = e.target.files;
+        const files = Array.from(e.target.files);
         if (!files.length) return;
+
+        const available = MAX_PHOTOS - pendingPhotos.length;
+        if (available <= 0) {
+            alert(`Limite de ${MAX_PHOTOS} fotos atingido. Remova algumas antes de adicionar novas.`);
+            fileInput.value = '';
+            return;
+        }
+
+        const toProcess = files.slice(0, available);
+        if (files.length > available) {
+            alert(`Limite de ${MAX_PHOTOS} fotos. Apenas ${available} foto${available > 1 ? 's' : ''} serão adicionadas.`);
+        }
 
         const status = document.getElementById('uploadStatus');
         status.textContent = '⏳ Comprimindo fotos...';
 
-        for (const file of files) {
+        for (const file of toProcess) {
             try {
                 const base64 = await compressImage(file);
                 pendingPhotos.push(base64);
@@ -176,8 +190,19 @@ export function initFormListeners(onSubmit) {
     uploadArea.addEventListener('drop', async (e) => {
         e.preventDefault();
         uploadArea.classList.remove('dragover');
-        const files = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/'));
-        if (!files.length) return;
+        const allFiles = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/'));
+        if (!allFiles.length) return;
+
+        const available = MAX_PHOTOS - pendingPhotos.length;
+        if (available <= 0) {
+            alert(`Limite de ${MAX_PHOTOS} fotos atingido. Remova algumas antes de adicionar novas.`);
+            return;
+        }
+
+        const files = allFiles.slice(0, available);
+        if (allFiles.length > available) {
+            alert(`Limite de ${MAX_PHOTOS} fotos. Apenas ${available} foto${available > 1 ? 's' : ''} serão adicionadas.`);
+        }
 
         const status = document.getElementById('uploadStatus');
         status.textContent = '⏳ Comprimindo fotos...';
