@@ -1,4 +1,3 @@
-import { FIREBASE_CONFIG } from './firebase-config.js';
 
 let db = null;
 
@@ -6,13 +5,22 @@ let db = null;
  * Initializes Firebase and Firestore.
  * Uses the global `firebase` object loaded via CDN.
  */
-export function initFirebase() {
+export async function initFirebase() {
     if (typeof firebase === 'undefined') {
         console.warn('Firebase SDK not loaded');
         return;
     }
-    firebase.initializeApp(FIREBASE_CONFIG);
-    db = firebase.firestore();
+
+    try {
+        // Dynamic import to handle missing config file in production
+        const { FIREBASE_CONFIG } = await import('./firebase-config.js');
+        firebase.initializeApp(FIREBASE_CONFIG);
+        db = firebase.firestore();
+        console.log('Firebase inicializado com sucesso.');
+    } catch (err) {
+        console.error('Firebase não pôde ser inicializado (configuração ausente ou inválida):', err.message);
+        // We don't throw error here to allow the app to function with hardcoded data
+    }
 }
 
 /**

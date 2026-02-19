@@ -125,8 +125,8 @@ document.getElementById('filters').addEventListener('click', (e) => {
 
 // ====== INIT ======
 async function init() {
-    // 1. Init Firebase
-    initFirebase();
+    // 1. Init Firebase (async)
+    await initFirebase();
 
     // 2. Init gallery listeners
     initGalleryListeners();
